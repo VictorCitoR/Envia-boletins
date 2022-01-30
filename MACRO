@@ -1,0 +1,81 @@
+Sub ExportarAreaParaJPG()
+
+' define as variáveis a serem usadas
+
+Dim i, ult_linha As Integer
+Dim nome, CelulaDeComecoi, CelulaDeFinali, AreaSTR As String
+Dim tmpSheet As Worksheet
+Dim tmpChart As Chart
+Dim tmpImg As Object
+Dim img As String
+
+' obtem a quantidade de alunos, valor a de repetições na estrutura
+' For Next logo abaixo
+
+ult_linha = Sheets("ALUNOS").Range("A1048576").End(xlUp).Row
+
+For i = 1 To ult_linha - 1
+
+' seleciona a área do boletim a ser convertida em imagem, altere
+' os parâmetros de Cells conforme suas necessidades.
+
+nome = Cells(17 * (i - 1) + 5, 1).Value
+CelulaDeComecoi = Cells(17 * (i - 1) + 3, 1).Address
+CelulaDeFinali = Cells(17 * (i - 1) + 19, 13).Address
+AreaSTR = CelulaDeComecoi & ":" & CelulaDeFinali
+Range(AreaSTR).Select
+
+
+On Error GoTo erro
+
+Selection.CopyPicture Appearance:=xlPrinter, Format:=xlPicture
+
+Application.ScreenUpdating = False
+  Set tmpSheet = Worksheets.Add
+  Charts.Add
+  ActiveChart.Location Where:=xlLocationAsObject, Name:=tmpSheet.Name
+  Set tmpChart = ActiveChart
+  With tmpChart
+    .Paste
+    Set tmpImg = Selection
+    ' dimensões da imagem, altere esses parâmetros para obter uma imagem
+    ' corretamente ajustada.
+    With .Parent
+      .Height = 426
+      .Width = 2161
+    End With
+  End With
+
+' escolhe o caminho e nome para o qual as imagens serão salvas
+
+img = ThisWorkbook.Path & _
+      "\BOLETIM_" & nome & ".jpg"
+
+tmpChart.Export Filename:=img, FilterName:="jpg"
+
+Application.DisplayAlerts = False
+tmpSheet.Delete
+Application.DisplayAlerts = True
+
+Application.ScreenUpdating = True
+
+GoTo fim
+
+erro:
+MsgBox "Erro: " & Err.Description, _
+vbCritical, _
+"Erro: " & Err.Number
+
+fim:
+Set tmpSheet = Nothing
+Set tmpChart = Nothing
+Set tmpImg = Nothing
+
+Next
+
+  MsgBox "Imagens exportada para a pasta:" & ThisWorkbook.Path, _
+         vbInformation, _
+         "OK"
+
+End Sub
+
