@@ -22,7 +22,7 @@ def sem_erros(func):
         return False
 
 
-caminho = f'{os.path.abspath(os.getcwd())}\\ENVIO DE BOLETINS'
+caminho = f'{os.path.dirname(os.path.realpath(__file__))}\\ENVIO DE BOLETINS'
 
 try:
     os.mkdir(caminho)
